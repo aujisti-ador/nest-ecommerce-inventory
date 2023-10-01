@@ -5,6 +5,7 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import { LoginUserDto } from './dto/login.dto';
 import { Request, Response } from 'express';
+import JwtAuthenticationGuard from './jwt-authentication.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -29,6 +30,13 @@ export class AuthController {
     } catch (error) {
       return response.status(400).json({ message: 'Wrong credentials provided cc' });
     }
+  }
+
+  @UseGuards(JwtAuthenticationGuard)
+  @Post('logout')
+  async logOut(@Req() request: Request, @Res() response: Response) {
+    response.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
+    return response.sendStatus(200);
   }
 
   @Post()

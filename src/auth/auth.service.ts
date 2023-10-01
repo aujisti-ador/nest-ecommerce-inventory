@@ -51,6 +51,10 @@ export class AuthService {
     return cookie;
   }
 
+  public getCookieForLogOut() {
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+  }
+
   create(createAuthDto: CreateAuthDto) {
     return 'This action adds a new auth';
   }

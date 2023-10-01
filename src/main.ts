@@ -8,17 +8,17 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   app.setGlobalPrefix('api');
+  // validation pipe
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
+  // Swagger config 
   const config = new DocumentBuilder()
     .setTitle('Nest Ecommerce Inventory Api')
     .setDescription('Nest Ecommerce Inventory Api')
     .setVersion('1.0')
     // .addTag('cats')
     .build();
-
-  // validation pipe
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/swagger', app, document);
