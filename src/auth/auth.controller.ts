@@ -26,9 +26,9 @@ export class AuthController {
       );
       const cookie = this.authService.getCookieWithJwtToken(user.id);
       response.setHeader('Set-Cookie', cookie);
-      return response.status(200).json(user); // Set cookie before sending JSON response
+      return response.json(user); // Set cookie before sending JSON response
     } catch (error) {
-      return response.status(400).json({ message: 'Wrong credentials provided cc' });
+      return response.status(400).json({ message: 'Wrong credentials provided' });
     }
   }
 
