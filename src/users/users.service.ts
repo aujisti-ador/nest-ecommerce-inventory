@@ -40,7 +40,7 @@ export class UsersService {
     return await this.usersRepository.findOneBy({ id })
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  update(id: string, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
 
