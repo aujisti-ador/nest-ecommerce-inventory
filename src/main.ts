@@ -10,7 +10,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   // validation pipe
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // Swagger config 
   const config = new DocumentBuilder()

@@ -28,11 +28,10 @@ export class User {
         enum: Role,
         default: Role.USER
     })
-    roles: Role
+    roles: Role;
 
     @Column()
-    @IsString()
-    @Exclude({ toPlainOnly: true })
+    @Exclude({ toPlainOnly: true }) // Exclude password when transforming to plain object
     password: string;
 
     @CreateDateColumn()
@@ -42,5 +41,5 @@ export class User {
     updated_at: Date;
 
     @VersionColumn()
-    version: number
+    version: number;
 }
