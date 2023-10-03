@@ -34,6 +34,10 @@ export class User {
     @Exclude({ toPlainOnly: true }) // Exclude password when transforming to plain object
     password: string;
 
+    @Column()
+    @Exclude()
+    currentHashedRefreshToken?: string;
+
     @CreateDateColumn()
     created_at: Date;
 

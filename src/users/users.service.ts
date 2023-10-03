@@ -23,9 +23,35 @@ export class UsersService {
     createUserDto.password = hashedPassword;
     const user = await this.usersRepository.save(createUserDto);
     delete user.password;
-    
+
     return user;
     // return await this.usersRepository.save(createUserDto);
+  }
+
+  async setCurrentRefreshToken(refreshToken: string, userId: string) {
+    const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.usersRepository.update(userId, {
+      currentHashedRefreshToken
+    });
+  }
+
+  async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
+    const user = await this.findOne(userId);
+
+    const isRefreshTokenMatching = await bcrypt.compare(
+      refreshToken,
+      user.currentHashedRefreshToken
+    );
+
+    if (isRefreshTokenMatching) {
+      return user;
+    }
+  }
+
+  async removeRefreshToken(userId: string) {
+    return this.usersRepository.update(userId, {
+      currentHashedRefreshToken: ""
+    });
   }
 
   async findAll(): Promise<User[] | undefined> {
