@@ -10,6 +10,7 @@ import { LocalStrategy } from './strategy/local.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategy/jwt.strategy';
+import { JwtRefreshTokenStrategy } from './strategy/jwt.RefreshTokenStrategy';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]),
@@ -20,14 +21,10 @@ import { JwtStrategy } from './strategy/jwt.strategy';
     imports: [ConfigModule.forRoot()],
     inject: [ConfigService],
     useFactory: async () => ({
-      secret: process.env.JWT_SECRET,
-      signOptions: {
-        expiresIn: `${process.env.JWT_EXPIRATION_TIME}s`,
-      },
     })
   })
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, UsersService, LocalStrategy, JwtStrategy, JwtRefreshTokenStrategy],
 })
 export class AuthModule { }

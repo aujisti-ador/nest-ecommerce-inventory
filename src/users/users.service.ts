@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -43,9 +43,10 @@ export class UsersService {
       user.currentHashedRefreshToken
     );
 
-    if (isRefreshTokenMatching) {
-      return user;
+    if (!isRefreshTokenMatching) {
+      throw new HttpException('Wrong refresh token', HttpStatus.BAD_REQUEST);
     }
+    return user;
   }
 
   async removeRefreshToken(userId: string) {

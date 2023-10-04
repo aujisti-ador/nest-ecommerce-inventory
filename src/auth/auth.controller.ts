@@ -15,7 +15,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
   ) { }
-  
+
 
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
@@ -35,8 +35,17 @@ export class AuthController {
 
       await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.id);
 
-      response.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie.cookie]);
-      return response.json(user); // Set cookie before sending JSON response
+      // Create a combined array of cookies
+      const cookies = [accessTokenCookie, refreshTokenCookie.cookie];
+
+      // Set multiple cookies at once
+      response.setHeader('Set-Cookie', cookies);
+
+      // Omit the 'password' field from the user response
+      const userWithRefreshToken = await this.usersService.findOne(user.id);
+      delete userWithRefreshToken.password;
+
+      return response.json(userWithRefreshToken); // Set cookies before sending JSON response
     } catch (error) {
       return response.status(400).json({ message: 'Wrong credentials provided' });
     }
@@ -44,11 +53,27 @@ export class AuthController {
 
   @Get('refresh')
   @UseGuards(JwtRefreshGuard)
-  refresh(@Req() request: any) {
-    const accessTokenCookie = this.authService.getCookieWithJwtToken(request.user.id);
- 
-    request.res.setHeader('Set-Cookie', accessTokenCookie);
-    return request.user;
+  async refresh(@Req() request: any, @Res() response: any) {
+    try {
+      const { user } = request;
+      const refreshToken = request.cookies['Refresh'];
+  
+      await this.usersService.getUserIfRefreshTokenMatches(refreshToken, user.id);
+  
+      const accessTokenCookie = this.authService.getCookieWithJwtToken(user.id);
+  
+      // Set the new access token cookie
+      response.setHeader('Set-Cookie', accessTokenCookie);
+  
+      // Omit the 'password' field from the user response
+      const userWithoutPassword = { ...request.user };
+      delete userWithoutPassword.password;
+  
+      return response.json(userWithoutPassword);
+    } catch (error) {
+      // Handle any errors here and return an appropriate response
+      return response.status(500).json({ message: 'Internal server error' });
+    }
   }
 
   @UseGuards(JwtAuthenticationGuard)
@@ -63,7 +88,7 @@ export class AuthController {
   create(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.create(createAuthDto);
   }
-s
+  s
   @Get()
   findAll() {
     return this.authService.findAll();
