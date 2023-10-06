@@ -25,7 +25,6 @@ export class UsersService {
     delete user.password;
 
     return user;
-    // return await this.usersRepository.save(createUserDto);
   }
 
   async setCurrentRefreshToken(refreshToken: string, userId: string) {
@@ -79,9 +78,4 @@ export class UsersService {
 
     await this.usersRepository.remove(existingUser);
   }
-
-  // private hidePassword(user: User): User {
-  //   const { password, ...userWithoutPassword } = user;
-  //   return userWithoutPassword;
-  // }
 }

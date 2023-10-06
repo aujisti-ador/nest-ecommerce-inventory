@@ -3,11 +3,11 @@ import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
-import { LoginUserDto } from './dto/login.dto';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
 import { UsersService } from 'src/users/users.service';
 import JwtRefreshGuard from './jwt-refresh.guard';
+import RequestWithUser from './dto/requestWithUser.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -21,15 +21,11 @@ export class AuthController {
   @UseGuards(LocalAuthenticationGuard)
   @Post('signin')
   async signIn(
-    @Req() request: Request,
+    @Req() request: RequestWithUser,
     @Res() response: Response,
   ) {
     try {
-      const loginUserDto: LoginUserDto = request.body;
-      const user = await this.authService.getAuthenticatedUser(
-        loginUserDto.email,
-        loginUserDto.password,
-      );
+      const { user } = request;
       const accessTokenCookie = this.authService.getCookieWithJwtToken(user.id);
       const refreshTokenCookie = this.authService.getCookieWithJwtRefreshToken(user.id);
 
@@ -53,22 +49,22 @@ export class AuthController {
 
   @Get('refresh')
   @UseGuards(JwtRefreshGuard)
-  async refresh(@Req() request: any, @Res() response: any) {
+  async refresh(@Req() request: RequestWithUser, @Res() response: any) {
     try {
       const { user } = request;
       const refreshToken = request.cookies['Refresh'];
-  
+
       await this.usersService.getUserIfRefreshTokenMatches(refreshToken, user.id);
-  
+
       const accessTokenCookie = this.authService.getCookieWithJwtToken(user.id);
-  
+
       // Set the new access token cookie
       response.setHeader('Set-Cookie', accessTokenCookie);
-  
+
       // Omit the 'password' field from the user response
       const userWithoutPassword = { ...request.user };
       delete userWithoutPassword.password;
-  
+
       return response.json(userWithoutPassword);
     } catch (error) {
       // Handle any errors here and return an appropriate response
@@ -78,7 +74,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthenticationGuard)
   @Post('logout')
-  async logOut(@Req() request: any, @Res() response: Response) {
+  async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
     await this.usersService.removeRefreshToken(request.user.id);
     response.setHeader('Set-Cookie', this.authService.getCookieForLogOut());
     return response.sendStatus(200);

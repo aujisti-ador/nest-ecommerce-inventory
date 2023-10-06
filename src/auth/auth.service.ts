@@ -29,6 +29,7 @@ export class AuthService {
       return user;
     } catch (error) {
       // Handle errors here
+      console.log("===> error", error);
       throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
     }
   }

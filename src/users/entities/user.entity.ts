@@ -18,9 +18,11 @@ export class User {
     phone: string;
 
     @Column()
+    @IsString()
     first_name: string;
 
     @Column()
+    @IsString()
     last_name: string;
 
     @Column({
@@ -34,7 +36,9 @@ export class User {
     @Exclude({ toPlainOnly: true }) // Exclude password when transforming to plain object
     password: string;
 
-    @Column()
+    @Column({
+        default: null
+    })
     @Exclude()
     currentHashedRefreshToken?: string;
 
