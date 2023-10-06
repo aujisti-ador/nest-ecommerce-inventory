@@ -84,7 +84,7 @@ export class AuthController {
   create(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.create(createAuthDto);
   }
-  s
+  
   @Get()
   findAll() {
     return this.authService.findAll();
