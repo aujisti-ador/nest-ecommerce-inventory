@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, NotFoundException, ForbiddenException, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  NotFoundException,
+  ForbiddenException,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -8,7 +21,7 @@ import { Role } from 'src/enums/role.enum';
 import { User } from './entities/user.entity';
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   @UseGuards(JwtAuthenticationGuard)
@@ -46,7 +59,9 @@ export class UsersController {
     } catch (error) {
       if (error instanceof ForbiddenException) {
         // Handle ForbiddenException (RoleGuard denied access)
-        throw new ForbiddenException('You do not have permission to delete this user');
+        throw new ForbiddenException(
+          'You do not have permission to delete this user',
+        );
       } else {
         // Handle other exceptions (e.g., NotFoundException)
         throw error;

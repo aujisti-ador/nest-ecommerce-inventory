@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  UseGuards,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import { Response } from 'express';
@@ -13,29 +25,28 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
-  ) { }
-
+  ) {}
 
   @Post('signup')
-  async signUp(
-    @Body() createUserDto: CreateUserDto
-  ) {
+  async signUp(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
   @Post('signin')
-  async signIn(
-    @Req() request: RequestWithUser,
-    @Res() response: Response,
-  ) {
+  async signIn(@Req() request: RequestWithUser, @Res() response: Response) {
     try {
       const { user } = request;
       const accessTokenCookie = this.authService.getCookieWithJwtToken(user.id);
-      const refreshTokenCookie = this.authService.getCookieWithJwtRefreshToken(user.id);
+      const refreshTokenCookie = this.authService.getCookieWithJwtRefreshToken(
+        user.id,
+      );
 
-      await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.id);
+      await this.usersService.setCurrentRefreshToken(
+        refreshTokenCookie.token,
+        user.id,
+      );
 
       // Create a combined array of cookies
       const cookies = [accessTokenCookie, refreshTokenCookie.cookie];
@@ -49,10 +60,11 @@ export class AuthController {
 
       return response.json(userWithRefreshToken); // Set cookies before sending JSON response
     } catch (error) {
-      return response.status(400).json({ message: 'Wrong credentials provided' });
+      return response
+        .status(400)
+        .json({ message: 'Wrong credentials provided' });
     }
   }
-
 
   @Get('refresh')
   @UseGuards(JwtRefreshGuard)
@@ -61,7 +73,10 @@ export class AuthController {
       const { user } = request;
       const refreshToken = request.cookies['Refresh'];
 
-      await this.usersService.getUserIfRefreshTokenMatches(refreshToken, user.id);
+      await this.usersService.getUserIfRefreshTokenMatches(
+        refreshToken,
+        user.id,
+      );
 
       const accessTokenCookie = this.authService.getCookieWithJwtToken(user.id);
 
@@ -91,7 +106,7 @@ export class AuthController {
   // create(@Body() createAuthDto: CreateAuthDto) {
   //   return this.authService.create(createAuthDto);
   // }
-  
+
   // @Get()
   // findAll() {
   //   return this.authService.findAll();

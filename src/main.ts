@@ -14,13 +14,13 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
-      forbidUnknownValues: true
+      forbidUnknownValues: true,
     }),
   );
 
   // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  // Swagger config 
+  // Swagger config
   const config = new DocumentBuilder()
     .setTitle('Nest Ecommerce Inventory Api')
     .setDescription('Nest Ecommerce Inventory Api')

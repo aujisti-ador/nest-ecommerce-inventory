@@ -1,4 +1,10 @@
-import { ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -11,17 +17,19 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User | undefined> {
     const [emailExists, phoneExists, usernameExists] = await Promise.all([
-        this.findByEmail(createUserDto.email),
-        this.findByPhone(createUserDto.phone),
-        this.findByUsername(createUserDto.username)
+      this.findByEmail(createUserDto.email),
+      this.findByPhone(createUserDto.phone),
+      this.findByUsername(createUserDto.username),
     ]);
 
     if (emailExists || phoneExists || usernameExists) {
-        throw new ConflictException('User already exists with email, username, or phone');
+      throw new ConflictException(
+        'User already exists with email, username, or phone',
+      );
     }
 
     // Hash password
@@ -32,13 +40,12 @@ export class UsersService {
     delete user.password;
 
     return user;
-}
-
+  }
 
   async setCurrentRefreshToken(refreshToken: string, userId: string) {
     const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.usersRepository.update(userId, {
-      currentHashedRefreshToken
+      currentHashedRefreshToken,
     });
   }
 
@@ -47,7 +54,7 @@ export class UsersService {
 
     const isRefreshTokenMatching = await bcrypt.compare(
       refreshToken,
-      user.currentHashedRefreshToken
+      user.currentHashedRefreshToken,
     );
 
     if (!isRefreshTokenMatching) {
@@ -58,7 +65,7 @@ export class UsersService {
 
   async removeRefreshToken(userId: string) {
     return this.usersRepository.update(userId, {
-      currentHashedRefreshToken: ""
+      currentHashedRefreshToken: '',
     });
   }
 
@@ -67,15 +74,13 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<User | undefined> {
-    return await this.usersRepository.findOneBy({ email })
+    return await this.usersRepository.findOneBy({ email });
   }
   async findByPhone(phone: string): Promise<User | undefined> {
-    console.log("===> FindByPhone", phone);
-    return await this.usersRepository.findOneBy({ phone })
-
+    return await this.usersRepository.findOneBy({ phone });
   }
   async findByUsername(username: string): Promise<User | undefined> {
-    return await this.usersRepository.findOneBy({ username })
+    return await this.usersRepository.findOneBy({ username });
   }
 
   async findOneById(id: string): Promise<User | undefined> {
@@ -90,7 +95,10 @@ export class UsersService {
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User | undefined> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<User | undefined> {
     const user = await this.findOneById(id);
 
     if (!user) {
@@ -108,7 +116,6 @@ export class UsersService {
 
     return updatedUser;
   }
-
 
   async remove(id: string): Promise<void> {
     const existingUser = await this.findOneById(id);
