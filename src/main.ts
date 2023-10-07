@@ -9,7 +9,15 @@ async function bootstrap() {
   app.use(cookieParser());
   app.setGlobalPrefix('api');
   // validation pipe
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+      forbidUnknownValues: true
+    }),
+  );
+
   // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // Swagger config 

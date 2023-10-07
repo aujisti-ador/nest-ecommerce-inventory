@@ -14,18 +14,26 @@ export class UsersService {
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User | undefined> {
-    const userExists = await this.findByEmail(createUserDto.email)
-    if (userExists) {
-      throw new ConflictException('User already exists');
+    const [emailExists, phoneExists, usernameExists] = await Promise.all([
+        this.findByEmail(createUserDto.email),
+        this.findByPhone(createUserDto.phone),
+        this.findByUsername(createUserDto.username)
+    ]);
+
+    if (emailExists || phoneExists || usernameExists) {
+        throw new ConflictException('User already exists with email, username, or phone');
     }
+
     // Hash password
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     createUserDto.password = hashedPassword;
+
     const user = await this.usersRepository.save(createUserDto);
     delete user.password;
 
     return user;
-  }
+}
+
 
   async setCurrentRefreshToken(refreshToken: string, userId: string) {
     const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
@@ -35,7 +43,7 @@ export class UsersService {
   }
 
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
-    const user = await this.findOne(userId);
+    const user = await this.findOneById(userId);
 
     const isRefreshTokenMatching = await bcrypt.compare(
       refreshToken,
@@ -61,17 +69,49 @@ export class UsersService {
   async findByEmail(email: string): Promise<User | undefined> {
     return await this.usersRepository.findOneBy({ email })
   }
+  async findByPhone(phone: string): Promise<User | undefined> {
+    console.log("===> FindByPhone", phone);
+    return await this.usersRepository.findOneBy({ phone })
 
-  async findOne(id: string): Promise<User | undefined> {
-    return await this.usersRepository.findOneBy({ id })
+  }
+  async findByUsername(username: string): Promise<User | undefined> {
+    return await this.usersRepository.findOneBy({ username })
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findOneById(id: string): Promise<User | undefined> {
+    try {
+      const user = await this.usersRepository.findOneBy({ id });
+      if (!user) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+      return user;
+    } catch (error) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
   }
+
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User | undefined> {
+    const user = await this.findOneById(id);
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    // Save the updated user
+    const updatedUser = await this.usersRepository.save({
+      ...user,
+      ...updateUserDto,
+    });
+
+    // Optional: You can also exclude sensitive data from the response, like the password
+    delete updatedUser.password;
+    delete updatedUser.currentHashedRefreshToken;
+
+    return updatedUser;
+  }
+
 
   async remove(id: string): Promise<void> {
-    const existingUser = await this.findOne(id);
+    const existingUser = await this.findOneById(id);
     if (!existingUser) {
       throw new NotFoundException(`User with id ${id} not found`);
     }

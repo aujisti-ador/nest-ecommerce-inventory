@@ -1,13 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import { Response } from 'express';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
 import { UsersService } from 'src/users/users.service';
 import JwtRefreshGuard from './jwt-refresh.guard';
 import RequestWithUser from './dto/requestWithUser.interface';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -16,6 +15,13 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) { }
 
+
+  @Post('signup')
+  async signUp(
+    @Body() createUserDto: CreateUserDto
+  ) {
+    return this.usersService.create(createUserDto);
+  }
 
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
@@ -38,7 +44,7 @@ export class AuthController {
       response.setHeader('Set-Cookie', cookies);
 
       // Omit the 'password' field from the user response
-      const userWithRefreshToken = await this.usersService.findOne(user.id);
+      const userWithRefreshToken = await this.usersService.findOneById(user.id);
       delete userWithRefreshToken.password;
 
       return response.json(userWithRefreshToken); // Set cookies before sending JSON response
@@ -46,6 +52,7 @@ export class AuthController {
       return response.status(400).json({ message: 'Wrong credentials provided' });
     }
   }
+
 
   @Get('refresh')
   @UseGuards(JwtRefreshGuard)
@@ -80,28 +87,28 @@ export class AuthController {
     return response.sendStatus(200);
   }
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
-  }
+  // @Post()
+  // create(@Body() createAuthDto: CreateAuthDto) {
+  //   return this.authService.create(createAuthDto);
+  // }
   
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.authService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.authService.findOne(+id);
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
+  //   return this.authService.update(+id, updateAuthDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.authService.remove(+id);
+  // }
 }

@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     async validate(payload: TokenPayload)  {
         // Add a check here to handle invalid tokens or unauthorized access
-        const user = await this.userService.findOne(payload.userId);
+        const user = await this.userService.findOneById(payload.userId);
         if (!user) {
           throw new UnauthorizedException('Invalid token or user not found');
         }
