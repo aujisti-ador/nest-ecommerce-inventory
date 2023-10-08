@@ -57,6 +57,7 @@ export class AuthController {
       // Omit the 'password' field from the user response
       const userWithRefreshToken = await this.usersService.findOneById(user.id);
       delete userWithRefreshToken.password;
+      delete userWithRefreshToken.currentHashedRefreshToken;
 
       return response.json(userWithRefreshToken); // Set cookies before sending JSON response
     } catch (error) {
@@ -86,6 +87,7 @@ export class AuthController {
       // Omit the 'password' field from the user response
       const userWithoutPassword = { ...request.user };
       delete userWithoutPassword.password;
+      delete userWithoutPassword.currentHashedRefreshToken;
 
       return response.json(userWithoutPassword);
     } catch (error) {

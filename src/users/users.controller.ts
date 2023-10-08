@@ -8,6 +8,10 @@ import {
   UseGuards,
   NotFoundException,
   ForbiddenException,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -20,6 +24,7 @@ export class UsersController {
 
   @Get()
   @UseGuards(JwtAuthenticationGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
   findAll() {
     return this.usersService.findAll();
   }
@@ -34,8 +39,21 @@ export class UsersController {
 
   @Patch(':id')
   @UseGuards(RoleGuard(Role.ADMIN))
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    try {
+      const updatedUser = await this.usersService.update(id, updateUserDto);
+      return updatedUser;
+    } catch (error) {
+      if (error instanceof ForbiddenException) {
+        throw new HttpException('Permission denied', HttpStatus.FORBIDDEN);
+      } else {
+        // Handle other errors as needed
+        throw new HttpException(
+          'Failed to update user',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
   }
 
   @Delete(':id')
