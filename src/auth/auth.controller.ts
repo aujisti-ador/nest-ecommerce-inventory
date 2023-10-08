@@ -1,35 +1,52 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, UseGuards, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  UseGuards,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import { Response } from 'express';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
 import { UsersService } from 'src/users/users.service';
 import JwtRefreshGuard from './jwt-refresh.guard';
 import RequestWithUser from './dto/requestWithUser.interface';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
-  ) { }
+  ) {}
 
+  @Post('signup')
+  async signUp(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
 
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
   @Post('signin')
-  async signIn(
-    @Req() request: RequestWithUser,
-    @Res() response: Response,
-  ) {
+  async signIn(@Req() request: RequestWithUser, @Res() response: Response) {
     try {
       const { user } = request;
       const accessTokenCookie = this.authService.getCookieWithJwtToken(user.id);
-      const refreshTokenCookie = this.authService.getCookieWithJwtRefreshToken(user.id);
+      const refreshTokenCookie = this.authService.getCookieWithJwtRefreshToken(
+        user.id,
+      );
 
-      await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.id);
+      await this.usersService.setCurrentRefreshToken(
+        refreshTokenCookie.token,
+        user.id,
+      );
 
       // Create a combined array of cookies
       const cookies = [accessTokenCookie, refreshTokenCookie.cookie];
@@ -38,12 +55,14 @@ export class AuthController {
       response.setHeader('Set-Cookie', cookies);
 
       // Omit the 'password' field from the user response
-      const userWithRefreshToken = await this.usersService.findOne(user.id);
+      const userWithRefreshToken = await this.usersService.findOneById(user.id);
       delete userWithRefreshToken.password;
 
       return response.json(userWithRefreshToken); // Set cookies before sending JSON response
     } catch (error) {
-      return response.status(400).json({ message: 'Wrong credentials provided' });
+      return response
+        .status(400)
+        .json({ message: 'Wrong credentials provided' });
     }
   }
 
@@ -54,7 +73,10 @@ export class AuthController {
       const { user } = request;
       const refreshToken = request.cookies['Refresh'];
 
-      await this.usersService.getUserIfRefreshTokenMatches(refreshToken, user.id);
+      await this.usersService.getUserIfRefreshTokenMatches(
+        refreshToken,
+        user.id,
+      );
 
       const accessTokenCookie = this.authService.getCookieWithJwtToken(user.id);
 
@@ -80,28 +102,28 @@ export class AuthController {
     return response.sendStatus(200);
   }
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
-  }
-  s
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
+  // @Post()
+  // create(@Body() createAuthDto: CreateAuthDto) {
+  //   return this.authService.create(createAuthDto);
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
+  // @Get()
+  // findAll() {
+  //   return this.authService.findAll();
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.authService.findOne(+id);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
+  //   return this.authService.update(+id, updateAuthDto);
+  // }
+
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.authService.remove(+id);
+  // }
 }

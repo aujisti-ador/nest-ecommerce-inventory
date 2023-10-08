@@ -13,18 +13,24 @@ import { JwtStrategy } from './strategy/jwt.strategy';
 import { JwtRefreshTokenStrategy } from './strategy/jwt.RefreshTokenStrategy';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]),
+  imports: [
+    TypeOrmModule.forFeature([User]),
     UsersModule,
     PassportModule,
     ConfigModule,
-  JwtModule.registerAsync({
-    imports: [ConfigModule.forRoot()],
-    inject: [ConfigService],
-    useFactory: async () => ({
-    })
-  })
+    JwtModule.registerAsync({
+      imports: [ConfigModule.forRoot()],
+      inject: [ConfigService],
+      useFactory: async () => ({}),
+    }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService, LocalStrategy, JwtStrategy, JwtRefreshTokenStrategy],
+  providers: [
+    AuthService,
+    UsersService,
+    LocalStrategy,
+    JwtStrategy,
+    JwtRefreshTokenStrategy,
+  ],
 })
-export class AuthModule { }
+export class AuthModule {}
