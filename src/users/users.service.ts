@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import * as fs from 'fs';
 
 @Injectable()
 export class UsersService {
@@ -116,6 +117,65 @@ export class UsersService {
 
     return updatedUser;
   }
+
+  async setAvatar(id: string, avatarUrl: string): Promise<void> {
+    const user = await this.usersRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    try {
+      await this.usersRepository.update(id, { avatar: avatarUrl });
+    } catch (error) {
+      throw new Error('Failed to update avatar');
+    }
+  }
+
+  // async deleteAvatar(id: string): Promise<void> {
+  //   const user = await this.usersRepository.findOneBy({ id });
+
+  //   if (!user) {
+  //     throw new NotFoundException('User not found');
+  //   }
+
+  //   if (!user.avatar) {
+  //     throw new NotFoundException('Avatar not found');
+  //   }
+
+  //   try {
+  //     // Delete the avatar file from the file system
+  //     // fs.unlink(user.avatar);
+
+  //     const avatarsIndex = user.avatar.indexOf("users");
+  //     let dataAfterAvatars;
+  //     if (avatarsIndex !== -1) {
+  //       // Get the substring after "avatars"
+  //       dataAfterAvatars = user.avatar.slice(avatarsIndex + "users".length + 1);
+
+  //       console.log("===> ", dataAfterAvatars);
+  //     } else {
+  //       console.log("No 'avatars' found in the URL");
+  //     }
+
+  //     fs.unlink(dataAfterAvatars, (err) => {
+  //       if (err) {
+  //         // Handle the error and throw a custom error message
+  //         console.error('Error deleting file:', err);
+
+  //         // You can throw a custom error like this:
+  //         throw new Error('Failed to delete the file');
+  //       } else {
+  //         console.log('File deleted successfully');
+  //       }
+  //     });
+
+  //     // Update the user's avatar URL in the database
+  //     await this.usersRepository.update(id, { avatar: null });
+  //   } catch (error) {
+  //     throw new Error('Failed to delete avatar');
+  //   }
+  // }
 
   async remove(id: string): Promise<void> {
     const existingUser = await this.findOneById(id);
