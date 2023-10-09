@@ -28,7 +28,7 @@ import * as moment from 'moment';
 import * as fs from 'fs';
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Get()
   @UseGuards(JwtAuthenticationGuard)
@@ -98,43 +98,49 @@ export class UsersController {
             .fill(null)
             .map(() => Math.round(Math.random() * 16).toString(16))
             .join('');
-          return cb(
-            null,
-            `${originalNameWithoutExtension}-${timestamp}-${randomName}${extname(
-              file.originalname,
-            )}`,
-          );
+
+          const stringWithoutSpaces = `${originalNameWithoutExtension}-${timestamp}-${randomName}${extname(
+            file.originalname
+          )}`.replace(/\s/g, '');
+
+          return cb(null, stringWithoutSpaces);
         },
       }),
     }),
   )
   async uploadAvatar(@Param('userid') userId, @UploadedFile() file) {
     try {
-      await this.usersService.setAvatar(
-        userId,
-        `${process.env.SERVER_URL}users/${file.path}`,
-      );
+      if (!file) {
+        throw new NotFoundException('No file uploaded');
+      }
+
+      const originalString = `${process.env.SERVER_URL}users/${file.path}`;
+      const stringWithoutSpaces = originalString.replace(/\s/g, '');
+
+      // Check if the user exists and handle the avatar upload
+      await this.usersService.uploadAvatar(userId, stringWithoutSpaces);
     } catch (error) {
       if (error instanceof NotFoundException) {
-        throw new NotFoundException('User not found');
+        throw error;
       } else {
         throw new Error('Something went wrong');
       }
     }
   }
 
-  // @Delete(':id/avatar')
-  // async deleteAvatar(@Param('id') id: string): Promise<void> {
-  //   try {
-  //     await this.usersService.deleteAvatar(id);
-  //   } catch (error) {
-  //     if (error instanceof NotFoundException) {
-  //       throw new NotFoundException(error.message);
-  //     } else {
-  //       throw new Error('Failed to delete avatar'); // Handle other errors as needed
-  //     }
-  //   }
-  // }
+  @Delete(':userid/avatar')
+  @UseGuards(JwtAuthenticationGuard)
+  async deleteAvatar(@Param('userid') userid: string): Promise<void> {
+    try {
+      await this.usersService.deleteAvatar(userid);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new Error('Failed to delete avatar'); // Handle other errors as needed
+      }
+    }
+  }
 
   @Delete(':id')
   @UseGuards(RoleGuard(Role.ADMIN))
