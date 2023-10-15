@@ -12,7 +12,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   public async getAuthenticatedUser(email: string, plainTextPassword: string) {
     try {
@@ -28,14 +28,17 @@ export class AuthService {
       delete user.password;
       return user;
     } catch (error) {
-      // Handle errors here
+      // Rethrow the original "User not found" error
+      if (error.status === HttpStatus.NOT_FOUND) {
+        throw error;
+      }
+
+      // Handle other errors here
       console.log('===> error', error);
-      throw new HttpException(
-        'Wrong credentials provided',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
     }
   }
+
 
   private async verifyPassword(
     plainTextPassword: string,
