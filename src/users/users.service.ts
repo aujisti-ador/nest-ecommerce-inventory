@@ -126,6 +126,7 @@ export class UsersService {
     }
 
     try {
+      await this.deleteAvatar(id)
       await this.usersRepository.update(id, { avatar: avatarUrl });
     } catch (error) {
       throw new Error('Failed to update avatar');

@@ -15,6 +15,7 @@ import {
   UploadedFile,
   Post,
   Res,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -22,10 +23,9 @@ import JwtAuthenticationGuard from 'src/auth/jwt-authentication.guard';
 import RoleGuard from 'src/roles/roles.guard';
 import { Role } from 'src/enums/role.enum';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import * as moment from 'moment';
 import * as fs from 'fs';
+
+import { multerOptions } from '../utils/multerOptions';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
@@ -33,7 +33,8 @@ export class UsersController {
   @Get()
   @UseGuards(JwtAuthenticationGuard)
   @UseInterceptors(ClassSerializerInterceptor)
-  findAll() {
+  findAll(@Request() req) {
+    // console.log("===> req", req.user);
     return this.usersService.findAll();
   }
 
@@ -85,28 +86,7 @@ export class UsersController {
   @Post(':userid/avatar')
   @UseGuards(JwtAuthenticationGuard)
   @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './avatars',
-        filename: (req, file, cb) => {
-          const timestamp = moment().format('DD-MM-YYYY-HH:mm:ss');
-          const originalNameWithoutExtension = file.originalname
-            .split('.')
-            .slice(0, -1)
-            .join('');
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-
-          const stringWithoutSpaces = `${originalNameWithoutExtension}-${timestamp}-${randomName}${extname(
-            file.originalname
-          )}`.replace(/\s/g, '');
-
-          return cb(null, stringWithoutSpaces);
-        },
-      }),
-    }),
+    FileInterceptor('file', multerOptions)
   )
   async uploadAvatar(@Param('userid') userId, @UploadedFile() file) {
     try {
