@@ -21,6 +21,10 @@ export class UpdateUserDto {
   @IsOptional()
   password: string;
 
+  @IsString()
+  @IsOptional()
+  avatar: string;
+
   @IsEnum(Role)
   @IsOptional()
   roles: Role;

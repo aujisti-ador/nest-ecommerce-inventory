@@ -49,6 +49,9 @@ export class User {
   @Exclude()
   currentHashedRefreshToken?: string;
 
+  @Column()
+  avatar: string;
+
   @CreateDateColumn()
   created_at: Date;
 
