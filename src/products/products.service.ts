@@ -22,7 +22,7 @@ export class ProductsService {
       return await this.productRepository.save(createProductDto);
 
     } catch (error) {
-      console.log("===> Error creating Product", error);
+      console.log("Error creating Product", error);
     }
   }
 

@@ -78,7 +78,6 @@ export class CategoriesService {
     }
   }
 
-
   async remove(id: string) {
     try {
       const category = await this.categotyRepository.findOneBy({ id });

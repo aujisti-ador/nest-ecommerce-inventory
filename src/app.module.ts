@@ -11,6 +11,8 @@ import { Category } from './categories/entities/category.entity';
 import { Product } from './products/entities/product.entity';
 import { ProductImageModule } from './product-image/product-image.module';
 import { ProductImage } from './product-image/entities/product-image.entity';
+import { CustomerModule } from './customer/customer.module';
+import { Customer } from './customer/entities/customer.entity';
 
 @Module({
   imports: [
@@ -21,7 +23,12 @@ import { ProductImage } from './product-image/entities/product-image.entity';
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User, Product, Category, ProductImage],
+      entities: [
+        User,
+        Product,
+        Category,
+        ProductImage,
+        Customer],
       synchronize: true,
     }),
     UsersModule,
@@ -29,6 +36,7 @@ import { ProductImage } from './product-image/entities/product-image.entity';
     ProductsModule,
     CategoriesModule,
     ProductImageModule,
+    CustomerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
