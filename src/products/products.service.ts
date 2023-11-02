@@ -23,6 +23,11 @@ export class ProductsService {
 
     } catch (error) {
       console.log("Error creating Product", error);
+      if (error instanceof HttpException) {
+        throw error; // Re-throw HttpExceptions as-is
+      } else {
+        throw new InternalServerErrorException("Failed to create customer");
+      }
     }
   }
 

@@ -36,13 +36,13 @@ export class Product {
   @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
   product_code: string;
 
-  @Column({ type: 'varchar', length: 255})
+  @Column({ type: 'varchar', length: 255, nullable: true })
   size: string;
 
-  @Column({type: 'varchar'})
+  @Column({ type: 'varchar', length: 255, nullable: true })
   color: string;
 
-  @Column({type: 'boolean', default: true})
+  @Column({ type: 'boolean', default: true })
   active: boolean;
 
   @OneToMany(() => ProductImage, (image) => image.product)
