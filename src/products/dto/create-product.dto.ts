@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateProductDto {
     @IsString()
@@ -30,4 +30,8 @@ export class CreateProductDto {
     @IsString()
     @IsOptional()
     color: string;
+    
+    @IsBoolean()
+    @IsOptional()
+    active: boolean;
 }

@@ -42,6 +42,9 @@ export class Product {
   @Column({type: 'varchar'})
   color: string;
 
+  @Column({type: 'boolean', default: true})
+  active: boolean;
+
   @OneToMany(() => ProductImage, (image) => image.product)
   images: ProductImage[];
 
