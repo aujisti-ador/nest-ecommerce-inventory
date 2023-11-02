@@ -33,7 +33,7 @@ export class Product {
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
-  @Column({ type: 'varchar', length: 255, default: ""}) // Define the appropriate length
+  @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
   product_code: string;
 
   @Column({ type: 'varchar', length: 255})
