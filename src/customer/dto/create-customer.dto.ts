@@ -4,6 +4,9 @@ export class CreateCustomerDto {
     @IsString()
     name: string;
 
+    @IsString()
+    gender: string;
+    
     @IsOptional()
     @IsEmail()
     email: string;
@@ -23,4 +26,5 @@ export class CreateCustomerDto {
     @IsNotEmpty()
     @IsString()
     address: string;
+
 }

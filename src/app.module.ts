@@ -3,16 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
-import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
-import { Category } from './categories/entities/category.entity';
-import { Product } from './products/entities/product.entity';
 import { ProductImageModule } from './product-image/product-image.module';
-import { ProductImage } from './product-image/entities/product-image.entity';
 import { CustomerModule } from './customer/customer.module';
-import { Customer } from './customer/entities/customer.entity';
 
 @Module({
   imports: [
@@ -23,13 +18,7 @@ import { Customer } from './customer/entities/customer.entity';
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [
-        User,
-        Product,
-        Category,
-        ProductImage,
-        Customer],
-      synchronize: true,
+      autoLoadEntities: true,
     }),
     UsersModule,
     AuthModule,

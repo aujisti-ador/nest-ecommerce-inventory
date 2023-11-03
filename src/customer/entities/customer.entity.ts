@@ -19,6 +19,10 @@ export class Customer {
     @IsString()
     name: string;
 
+    @Column({default: 'Female'})
+    @IsString()
+    gender: string;
+
     @IsOptional()
     @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
     email: string;
