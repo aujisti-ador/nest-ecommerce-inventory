@@ -46,6 +46,7 @@ export class OrderService {
     try {
       const order = await this.orderRepository.findOne({
         where: { id: id },
+        relations: ['created_by_user', 'customer']
       });
 
       if (!order) {
