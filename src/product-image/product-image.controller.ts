@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Res,
+  NotFoundException,
+} from '@nestjs/common';
 import { ProductImageService } from './product-image.service';
 import { CreateProductImageDto } from './dto/create-product-image.dto';
 import { UpdateProductImageDto } from './dto/update-product-image.dto';
@@ -36,12 +46,15 @@ export class ProductImageController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductImageDto: UpdateProductImageDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateProductImageDto: UpdateProductImageDto,
+  ) {
     return this.productImageService.update(+id, updateProductImageDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: number) {
     return this.productImageService.remove(+id);
   }
 }

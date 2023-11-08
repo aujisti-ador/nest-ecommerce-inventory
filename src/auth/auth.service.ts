@@ -12,7 +12,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   public async getAuthenticatedUser(email: string, plainTextPassword: string) {
     try {
@@ -35,10 +35,12 @@ export class AuthService {
 
       // Handle other errors here
       console.log('===> error', error);
-      throw new HttpException('Wrong credentials provided', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Wrong credentials provided',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
-
 
   private async verifyPassword(
     plainTextPassword: string,

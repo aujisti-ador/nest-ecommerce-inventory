@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,29 +21,33 @@ export class ProductsService {
     @InjectRepository(ProductImage)
     private productImageRepository: Repository<ProductImage>,
     private readonly categoryService: CategoriesService,
-  ) { }
+  ) {}
 
   async create(createProductDto: CreateProductDto) {
     try {
       return await this.productRepository.save(createProductDto);
-
     } catch (error) {
-      console.log("===> Error creating Product", error);
+      console.log('Error creating Product', error);
+      if (error instanceof HttpException) {
+        throw error; // Re-throw HttpExceptions as-is
+      } else {
+        throw new InternalServerErrorException('Failed to create product');
+      }
     }
   }
 
   async findAll() {
-    return await this.productRepository.find({ relations: ['category', 'images'] });
+    return await this.productRepository.find({
+      relations: ['category', 'images'],
+    });
   }
 
   async findOneById(id: string) {
     try {
-      const product = await this.productRepository.findOne(
-        {
-          where: { id: id },
-          relations: ['images']
-        }
-      );
+      const product = await this.productRepository.findOne({
+        where: { id: id },
+        relations: ['images'],
+      });
 
       if (!product) {
         throw new NotFoundException('Product not found');
@@ -60,8 +70,10 @@ export class ProductsService {
 
       // Check if the category_id in the DTO is different from the current category
       if (updateProductDto?.category_id !== product.category?.id) {
-        if (updateProductDto?.category_id !== "") {
-          const newCategory = await this.categoryService.findOneById(updateProductDto.category_id);
+        if (updateProductDto?.category_id !== '') {
+          const newCategory = await this.categoryService.findOneById(
+            updateProductDto.category_id,
+          );
           if (newCategory) {
             product.category = newCategory;
           }
@@ -76,9 +88,9 @@ export class ProductsService {
 
       return updatedProduct;
     } catch (error) {
-      console.error("===> updateProduct error", error);
+      console.error('===> updateProduct error', error);
 
-      if (error.code === "ER_NO_DEFAULT_FOR_FIELD") {
+      if (error.code === 'ER_NO_DEFAULT_FOR_FIELD') {
         throw new InternalServerErrorException(error.sqlMessage);
       }
       throw new InternalServerErrorException(error.sqlMessage);
@@ -95,12 +107,10 @@ export class ProductsService {
     }
 
     try {
-      const product = await this.productRepository.findOne(
-        {
-          where: { id: productId },
-          relations: ['images']
-        }
-      );
+      const product = await this.productRepository.findOne({
+        where: { id: productId },
+        relations: ['images'],
+      });
 
       if (!product) {
         throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
@@ -108,7 +118,10 @@ export class ProductsService {
 
       for (const image of images) {
         if (!image.mimetype.startsWith('image/')) {
-          throw new HttpException('Invalid file format', HttpStatus.BAD_REQUEST);
+          throw new HttpException(
+            'Invalid file format',
+            HttpStatus.BAD_REQUEST,
+          );
         }
 
         const originalString = `${process.env.SERVER_URL}product-image/${image.path}`;
@@ -125,13 +138,16 @@ export class ProductsService {
 
       await this.productRepository.save(product);
 
-      return { message: "Image uploaded successfully!" };
+      return { message: 'Image uploaded successfully!' };
     } catch (error) {
       console.error('Error uploading images:', error);
       if (error instanceof HttpException) {
         throw error;
       } else {
-        throw new HttpException('Error uploading images', HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new HttpException(
+          'Error uploading images',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }
