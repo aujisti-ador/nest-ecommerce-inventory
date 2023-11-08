@@ -10,15 +10,7 @@ import { ProductImageModule } from './product-image/product-image.module';
 import { CustomerModule } from './customer/customer.module';
 import { OrderItemModule } from './order-item/order-item.module';
 import { OrderModule } from './order/order.module';
-import { User } from './users/entities/user.entity';
-import { Product } from './products/entities/product.entity';
-import { Category } from './categories/entities/category.entity';
-import { ProductImage } from './product-image/entities/product-image.entity';
-import { Customer } from './customer/entities/customer.entity';
-import { Order } from './order/entities/order.entity';
-import { OrderItem } from './order-item/entities/order-item.entity';
 import { DeliveryStatusModule } from './delivery-status/delivery-status.module';
-import { DeliveryStatus } from './delivery-status/entities/delivery-status.entity';
 
 @Module({
   imports: [
