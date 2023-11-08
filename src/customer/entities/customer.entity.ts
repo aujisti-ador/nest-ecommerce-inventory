@@ -1,53 +1,56 @@
-import { Exclude } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
-import { Role } from 'src/enums/role.enum';
+import { Order } from 'src/order/entities/order.entity';
 import {
-    Entity,
-    Column,
-    PrimaryGeneratedColumn,
-    CreateDateColumn,
-    UpdateDateColumn,
-    VersionColumn,
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  VersionColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
 export class Customer {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column()
-    @IsString()
-    name: string;
+  @Column()
+  @IsString()
+  name: string;
 
-    @Column({default: 'Female'})
-    @IsString()
-    gender: string;
+  @Column({ default: 'Female' })
+  @IsString()
+  gender: string;
 
-    @IsOptional()
-    @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
-    email: string;
+  @IsOptional()
+  @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
+  email: string;
 
-    @Column({ unique: true })
-    phone: string;
+  @Column({ unique: true })
+  phone: string;
 
-    @Column()
-    @IsString()
-    district: string;
+  @Column()
+  @IsString()
+  district: string;
 
-    @Column()
-    @IsString()
-    division: string;
+  @Column()
+  @IsString()
+  division: string;
 
-    @Column()
-    @IsString()
-    address: string;
+  @Column()
+  @IsString()
+  address: string;
 
-    @CreateDateColumn()
-    created_at: Date;
+  @OneToMany(() => Order, (order) => order.customer)
+  order: Order[];
 
-    @UpdateDateColumn()
-    updated_at: Date;
+  @CreateDateColumn()
+  created_at: Date;
 
-    @VersionColumn()
-    version: number;
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @VersionColumn()
+  version: number;
 }

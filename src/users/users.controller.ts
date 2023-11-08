@@ -28,7 +28,7 @@ import * as fs from 'fs';
 import { multerOptions } from '../utils/multerOptions';
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   @UseGuards(JwtAuthenticationGuard)
@@ -85,9 +85,7 @@ export class UsersController {
 
   @Post(':userid/avatar')
   @UseGuards(JwtAuthenticationGuard)
-  @UseInterceptors(
-    FileInterceptor('file', multerOptions)
-  )
+  @UseInterceptors(FileInterceptor('file', multerOptions))
   async uploadAvatar(@Param('userid') userId, @UploadedFile() file) {
     try {
       if (!file) {

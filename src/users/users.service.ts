@@ -18,7 +18,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User | undefined> {
     const [emailExists, phoneExists, usernameExists] = await Promise.all([
@@ -126,7 +126,7 @@ export class UsersService {
     }
 
     try {
-      await this.deleteAvatar(id)
+      await this.deleteAvatar(id);
       await this.usersRepository.update(id, { avatar: avatarUrl });
     } catch (error) {
       throw new Error('Failed to update avatar');
@@ -152,17 +152,23 @@ export class UsersService {
       fs.unlink(filePath, (err) => {
         if (err) {
           console.error('Error deleting file:', err);
-          throw new HttpException('Failed to delete avatar', HttpStatus.INTERNAL_SERVER_ERROR);
+          throw new HttpException(
+            'Failed to delete avatar',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
         } else {
           console.log('File deleted successfully');
         }
       });
 
       // Update the user's avatar URL in the database
-      await this.usersRepository.update(id, { avatar: "" });
+      await this.usersRepository.update(id, { avatar: '' });
     } catch (error) {
       console.error('Error deleting avatar:', error);
-      throw new HttpException('Failed to delete avatar', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to delete avatar',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

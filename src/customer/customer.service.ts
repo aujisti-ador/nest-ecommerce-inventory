@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,15 +15,15 @@ import { Repository } from 'typeorm';
 export class CustomerService {
   constructor(
     @InjectRepository(Customer)
-    private customerRepository: Repository<Customer>
-  ) { }
+    private customerRepository: Repository<Customer>,
+  ) {}
 
   async create(createCustomerDto: CreateCustomerDto) {
     try {
       return await this.customerRepository.save(createCustomerDto);
     } catch (error) {
-      console.error("Error saving customer:", error);
-      throw new InternalServerErrorException("Failed to create customer"); // Or a more specific custom exception
+      console.error('Error saving customer:', error);
+      throw new InternalServerErrorException('Failed to create customer'); // Or a more specific custom exception
     }
   }
 
@@ -26,36 +32,36 @@ export class CustomerService {
   }
 
   async findOneById(id: string) {
+    console.log('===> findOneById', id);
     try {
-      const customer = await this.customerRepository.findOneBy({ id })
+      const customer = await this.customerRepository.findOneBy({ id });
       if (!customer) {
-        throw new NotFoundException("Customer not found")
+        throw new NotFoundException('Customer not found');
       }
+      return customer;
     } catch (error) {
-      console.error("Error finding customer");
-      throw new InternalServerErrorException("Failed to find customer");
+      console.error('Error finding customer');
+      throw new InternalServerErrorException('Failed to find customer');
     }
   }
 
   async update(id: string, updateCustomerDto: UpdateCustomerDto) {
     try {
-      const customer = await this.customerRepository.findOneBy({ id })
+      const customer = await this.customerRepository.findOneBy({ id });
       if (!customer) {
-        throw new NotFoundException("Customer not found")
+        throw new NotFoundException('Customer not found');
       }
 
       this.customerRepository.merge(customer, updateCustomerDto);
       const updatedCustomer = await this.customerRepository.save(customer);
       return updatedCustomer;
-
     } catch (error) {
-      console.error("Error updating customer");
+      console.error('Error updating customer');
       if (error instanceof HttpException) {
         throw error; // Re-throw HttpExceptions as-is
       } else {
-        throw new InternalServerErrorException("Failed to update customer");
+        throw new InternalServerErrorException('Failed to update customer');
       }
-
     }
   }
 
@@ -63,20 +69,19 @@ export class CustomerService {
     try {
       const customer = await this.customerRepository.findOneBy({ id });
       if (!customer) {
-        throw new NotFoundException("Customer not found");
+        throw new NotFoundException('Customer not found');
       }
 
       await this.customerRepository.remove(customer);
 
       return HttpStatus.OK;
     } catch (error) {
-      console.error("Error removing customer:", error);
+      console.error('Error removing customer:', error);
       if (error instanceof HttpException) {
         throw error; // Re-throw HttpExceptions as-is
       } else {
-        throw new InternalServerErrorException("Failed to remove customer");
+        throw new InternalServerErrorException('Failed to remove customer');
       }
     }
   }
-
 }

@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFiles, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UploadedFiles,
+  NotFoundException,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -8,7 +19,7 @@ import { MaxImagesInterceptor } from 'src/utils/interceptors/maxImageInterceptor
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(private readonly productsService: ProductsService) {}
 
   @Post()
   create(@Body() createProductDto: CreateProductDto) {
@@ -36,8 +47,14 @@ export class ProductsController {
   }
 
   @Post(':productId/images')
-  @UseInterceptors(FilesInterceptor('images', 10, multerOptionsProducts), MaxImagesInterceptor)
-  async uploadImages(@UploadedFiles() images, @Param('productId') productId: string) {
+  @UseInterceptors(
+    FilesInterceptor('images', 10, multerOptionsProducts),
+    MaxImagesInterceptor,
+  )
+  async uploadImages(
+    @UploadedFiles() images,
+    @Param('productId') productId: string,
+  ) {
     if (images.length === 0) {
       throw new NotFoundException('No file uploaded');
     }

@@ -1,6 +1,15 @@
 // category.entity.ts
 import { Product } from 'src/products/entities/product.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, VersionColumn, OneToMany, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  VersionColumn,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity('categories')
 export class Category {
@@ -21,5 +30,4 @@ export class Category {
 
   @VersionColumn()
   version: number;
-
 }

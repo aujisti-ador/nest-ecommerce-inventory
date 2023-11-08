@@ -1,4 +1,10 @@
-import { HttpCode, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductImageDto } from './dto/create-product-image.dto';
 import { UpdateProductImageDto } from './dto/update-product-image.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,20 +14,19 @@ import * as fs from 'fs';
 import { promisify } from 'util';
 const unlinkAsync = promisify(fs.unlink);
 
-
 @Injectable()
 export class ProductImageService {
   constructor(
     @InjectRepository(ProductImage)
     private productImageRepository: Repository<ProductImage>,
-  ) { }
+  ) {}
   create(createProductImageDto: CreateProductImageDto) {
     return 'This action adds a new productImage';
   }
 
   async findAll() {
     return await this.productImageRepository.find({
-      relations: ['product']
+      relations: ['product'],
     });
   }
 

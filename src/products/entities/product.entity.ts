@@ -1,7 +1,18 @@
 // product.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, VersionColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  VersionColumn,
+  OneToMany,
+} from 'typeorm';
 import { Category } from 'src/categories/entities/category.entity';
 import { ProductImage } from 'src/product-image/entities/product-image.entity';
+import { OrderItem } from 'src/order-item/entities/order-item.entity';
 
 @Entity('products')
 export class Product {
@@ -18,17 +29,20 @@ export class Product {
   price: number;
 
   @Column({ type: 'decimal', default: 0, precision: 10, scale: 2 })
+  discount_price: number;
+
+  @Column({ type: 'decimal', default: 0, precision: 10, scale: 2 })
   buying_price: number;
 
   @Column({ default: 0 })
   stock: number;
 
-  @Column({ type: "string", nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   category_id: string;
 
   @ManyToOne(() => Category, (category) => category.products, {
     eager: true,
-    cascade: true
+    cascade: true,
   })
   @JoinColumn({ name: 'category_id' })
   category: Category;
@@ -48,6 +62,9 @@ export class Product {
   @OneToMany(() => ProductImage, (image) => image.product)
   images: ProductImage[];
 
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
+  orderItems: OrderItem[];
+
   @CreateDateColumn()
   created_at: Date;
 
@@ -56,5 +73,4 @@ export class Product {
 
   @VersionColumn()
   version: number;
-
 }

@@ -1,6 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { IsString } from 'class-validator';
 import { Role } from 'src/enums/role.enum';
+import { Order } from 'src/order/entities/order.entity';
 import {
   Entity,
   Column,
@@ -8,6 +9,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   VersionColumn,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -38,6 +41,10 @@ export class User {
     default: Role.USER,
   })
   roles: Role;
+
+  @OneToMany(() => Order, (order) => order.created_by_user)
+  @JoinColumn({ name: 'order_id' })
+  order: Order[];
 
   @Column()
   @Exclude({ toPlainOnly: true }) // Exclude password when transforming to plain object
