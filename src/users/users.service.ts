@@ -18,7 +18,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User | undefined> {
     const [emailExists, phoneExists, usernameExists] = await Promise.all([
@@ -86,7 +86,10 @@ export class UsersService {
 
   async findOneById(id: string): Promise<User | undefined> {
     try {
-      const user = await this.usersRepository.findOneBy({ id });
+      const user = await this.usersRepository.findOne({
+        where: { id: id },
+        relations: ['order']
+      });
       if (!user) {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
