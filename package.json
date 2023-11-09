@@ -30,7 +30,7 @@
     "@nestjs/platform-express": "^10.2.7",
     "@nestjs/swagger": "^7.1.13",
     "@nestjs/typeorm": "^10.0.0",
-    "@types/cookie-parser": "^1.4.4",
+    "@types/cookie-parser": "^1.4.5",
     "@types/passport-jwt": "^3.0.10",
     "@types/passport-local": "^1.0.36",
     "bcrypt": "^5.1.1",
