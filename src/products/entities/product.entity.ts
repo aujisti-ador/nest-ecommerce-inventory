@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
   VersionColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Category } from 'src/categories/entities/category.entity';
 import { ProductImage } from 'src/product-image/entities/product-image.entity';
@@ -73,4 +74,7 @@ export class Product {
 
   @VersionColumn()
   version: number;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deletedAt: Date;
 }

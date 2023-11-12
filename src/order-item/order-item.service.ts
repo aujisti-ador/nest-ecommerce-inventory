@@ -13,6 +13,7 @@ import { OrderItem } from './entities/order-item.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderService } from 'src/order/order.service';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class OrderItemService {
@@ -20,7 +21,9 @@ export class OrderItemService {
     @InjectRepository(OrderItem)
     private orderItemRepository: Repository<OrderItem>,
     @Inject(OrderService)
-    private readonly orderService: OrderService
+    private readonly orderService: OrderService,
+    @Inject(ProductsService)
+    private readonly productsService: ProductsService
   ) { }
 
   async create(createOrderItemDto: CreateOrderItemDto) {
@@ -53,18 +56,16 @@ export class OrderItemService {
 
       const newTotal = orderDetails.total_price + orderItem.total_item_price;
       const newUnit = orderDetails.total_unit + quantity;
+      const updateStock = product.stock - quantity;
 
-      const updatedOrder = await this.orderService.update(order_id, {
+      await this.orderService.update(order_id, {
         total_price: newTotal,
         total_unit: newUnit,
       });
 
-      console.log("===> updatedOrder", updatedOrder);
-      console.log("===> orderObject", { total_price: newTotal, total_unit: newUnit });
-      console.log("===> orderItem", orderItem);
-      console.log("===> orderDetails", orderDetails);
-      console.log("===> orderItem.total_item_price", orderItem.total_item_price)
-
+      await this.productsService.update(product.id, {
+        'stock': updateStock
+      })
 
       return savedOrderItem;
     } catch (error) {
@@ -81,7 +82,9 @@ export class OrderItemService {
 
   async findAll() {
     try {
-      const orderItems = await this.orderItemRepository.find();
+      const orderItems = await this.orderItemRepository.find({
+        relations: ['product']
+      });
       return orderItems;
     } catch (error) {
       throw new InternalServerErrorException('Failed to retrieve order items');
@@ -128,29 +131,43 @@ export class OrderItemService {
   async remove(id: string) {
     try {
       const orderItem = await this.orderItemRepository.findOneBy({ id });
+
       if (!orderItem) {
         throw new NotFoundException(`Order item #${id} not found`);
       }
 
       const orderDetails = await this.orderService.findOneById(orderItem.order_id);
+      const product = await this.productsService.findOneById(orderItem.product_id);
+
+      if (!product) {
+        throw new NotFoundException(`Product item #${id} not found`);
+      }
 
       const newTotal = orderDetails.total_price - orderItem.total_item_price;
       const newUnit = orderDetails.total_unit - orderItem.quantity;
+      const updateStock = product.stock + orderItem.quantity;
 
-      await this.orderService.update(orderItem.order_id, {
-        total_price: newTotal,
-        total_unit: newUnit,
-      });
+      // Use Promise.all to parallelize database updates
+      await Promise.all([
+        this.orderService.update(orderItem.order_id, { total_price: newTotal, total_unit: newUnit }),
+        this.productsService.update(product.id, { stock: updateStock }),
+      ]);
 
+      // Remove the order item
       await this.orderItemRepository.remove(orderItem);
+
       return HttpStatus.OK;
     } catch (error) {
+      // Rethrow NotFoundException directly
       if (error instanceof NotFoundException) {
         throw error;
       } else {
-        // If it's not a specific error, rethrow it as a generic InternalServerErrorException
-        throw new InternalServerErrorException('Failed to remove order');
+        // Log the error for further analysis
+        console.error('Error removing order item:', error);
+        // Re-throw the exception for handling at a higher level if needed
+        throw new InternalServerErrorException('Failed to remove order item');
       }
     }
   }
+
 }

@@ -13,5 +13,6 @@ import { ProductImage } from 'src/product-image/entities/product-image.entity';
   ],
   controllers: [ProductsController],
   providers: [ProductsService],
+  exports: [ProductsService]
 })
 export class ProductsModule {}

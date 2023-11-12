@@ -38,7 +38,7 @@ export class OrderService {
   async findAll() {
     try {
       const orders = await this.orderRepository.find({
-        relations: ['created_by_user', 'customer', 'order_items'],
+        relations: ['created_by_user', 'customer', 'order_items.product'],
       });
 
       return orders;
@@ -114,7 +114,15 @@ export class OrderService {
       return HttpStatus.OK;
     } catch (error) {
       console.error('Error removing order item', error);
-      throw new InternalServerErrorException('Failed to remove order item');
+      if (error instanceof NotFoundException) {
+        throw error;
+      } else {
+        // Log the error for further analysis
+        console.error('Error removing order:', error);
+  
+        // Re-throw the exception for handling at a higher level if needed
+        throw new InternalServerErrorException('Failed to remove order');
+      }
     }
   }
 }

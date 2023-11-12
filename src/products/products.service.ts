@@ -45,8 +45,8 @@ export class ProductsService {
   async findOneById(id: string) {
     try {
       const product = await this.productRepository.findOne({
-        where: { id: id },
-        relations: ['images'],
+        where: { id: id},
+        relations: ['images', 'orderItems'],
       });
 
       if (!product) {
@@ -99,6 +99,28 @@ export class ProductsService {
 
   remove(id: number) {
     return `This action removes a #${id} product`;
+  }
+
+  async softDeleteProduct(id: string): Promise<void> {
+    try {
+      const product = await this.productRepository.findOneBy({id});
+
+      if (!product) {
+        throw new NotFoundException(`Product with ID ${id} not found`);
+      }
+
+      product.deletedAt = new Date(); // Set the deletedAt property
+
+      await this.productRepository.save(product);
+    } catch (error) {
+      console.error('Error in softDeleteProduct:', error);
+
+      if (error instanceof NotFoundException) {
+        throw error; // Re-throw NotFoundException as-is
+      } else {
+        throw new InternalServerErrorException('Failed to soft delete product');
+      }
+    }
   }
 
   async uploadImages(productId: string, images: any[]) {
