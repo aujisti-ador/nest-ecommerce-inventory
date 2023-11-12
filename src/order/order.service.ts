@@ -10,18 +10,29 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateOrderItemDto } from 'src/order-item/dto/create-order-item.dto';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
-  ) {}
+  ) { }
 
-  create(createOrderDto: CreateOrderDto) {
-    console.log('===> Order created', createOrderDto);
-    return this.orderRepository.save(createOrderDto);
+  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+    try {
+      return await this.orderRepository.save(createOrderDto);
+    } catch (error) {
+      console.error('Error creating order', error);
+
+      // Handle specific error cases
+      if (error.code === 'ER_NO_DEFAULT_FOR_FIELD') {
+        // Handle the specific error when there is no default value for a field
+        throw new HttpException('Error creating order: No default value for a field.', HttpStatus.BAD_REQUEST);
+      }
+
+      // If it's not a specific error, rethrow it as a generic InternalServerErrorException
+      throw new InternalServerErrorException('Failed to create order');
+    }
   }
 
   async findAll() {
@@ -46,7 +57,7 @@ export class OrderService {
     try {
       const order = await this.orderRepository.findOne({
         where: { id: id },
-        relations: ['created_by_user', 'customer'],
+        relations: ['created_by_user', 'customer', 'order_items.product'],
       });
 
       if (!order) {
@@ -91,14 +102,18 @@ export class OrderService {
     }
   }
 
-  remove(id: string) {
+  async remove(id: string): Promise<number> {
     try {
-      const order = this.orderRepository.findOneBy({ id });
+      const order = await this.orderRepository.findOneBy({ id });
+
       if (!order) {
         throw new NotFoundException(`Order item #${id} not found`);
       }
+
+      await this.orderRepository.remove(order);
       return HttpStatus.OK;
     } catch (error) {
+      console.error('Error removing order item', error);
       throw new InternalServerErrorException('Failed to remove order item');
     }
   }

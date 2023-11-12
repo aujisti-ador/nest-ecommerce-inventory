@@ -8,8 +8,6 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   VersionColumn,
@@ -34,7 +32,7 @@ export class Order {
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
   order_items: OrderItem[];
 
   @Column({ type: 'decimal', default: 0, precision: 10, scale: 2 })

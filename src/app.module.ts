@@ -23,6 +23,9 @@ import { DeliveryStatusModule } from './delivery-status/delivery-status.module';
       database: process.env.DATABASE_NAME,
       synchronize: true,
       autoLoadEntities: true,
+      extra: {
+        decimalNumbers: true
+      },
     }),
     UsersModule,
     AuthModule,
