@@ -29,6 +29,7 @@ export class OrderController {
   }
 
   @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
   findOne(@Param('id') id: string) {
     return this.orderService.findOneById(id);
   }

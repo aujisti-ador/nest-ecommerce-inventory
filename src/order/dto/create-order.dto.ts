@@ -1,4 +1,4 @@
-import { IsArray, IsDecimal, IsNumber, IsOptional, IsUUID } from 'class-validator';
+import { IsArray, IsBoolean, IsDecimal, IsNumber, IsOptional, IsUUID } from 'class-validator';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
 
 export class CreateOrderDto {
@@ -15,4 +15,8 @@ export class CreateOrderDto {
   @IsNumber()
   @IsOptional()
   total_unit: number;
+  
+  @IsBoolean()
+  @IsOptional()
+  is_order_placed: boolean;
 }

@@ -44,6 +44,9 @@ export class Order {
   @Column({ type: 'decimal', default: 0, precision: 10, scale: 2 })
   total_unit: number;
 
+  @Column({ type: 'boolean', default: false})
+  is_order_placed: boolean;
+
   @CreateDateColumn()
   created_at: Date;
 
