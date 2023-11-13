@@ -9,7 +9,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
 import { ProductImage } from 'src/product-image/entities/product-image.entity';
 
@@ -21,7 +21,7 @@ export class ProductsService {
     @InjectRepository(ProductImage)
     private productImageRepository: Repository<ProductImage>,
     private readonly categoryService: CategoriesService,
-  ) {}
+  ) { }
 
   async create(createProductDto: CreateProductDto) {
     try {
@@ -36,17 +36,42 @@ export class ProductsService {
     }
   }
 
-  async findAll() {
-    return await this.productRepository.find({
-      relations: ['category', 'images'],
-    });
+  async findAll(): Promise<Product[]> {
+    try {
+      return await this.productRepository.find({
+        relations: ['category', 'images'],
+      });
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw new NotFoundException('Failed to fetch products');
+    }
+  }
+
+  async findAllDeleted(): Promise<Product[]> {
+    try {
+      return await this.productRepository.find({
+        withDeleted: true,
+        where: {
+          deletedAt: Not(IsNull()), // Filter soft-deleted records
+        },
+        relations: ['category', 'images'],
+      });
+    } catch (error) {
+      console.error('Error fetching deleted products:', error);
+
+      if (error.name === 'EntityNotFound') {
+        throw new NotFoundException('Deleted products not found');
+      }
+      throw new HttpException('Failed to fetch deleted products', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async findOneById(id: string) {
     try {
       const product = await this.productRepository.findOne({
-        where: { id: id},
+        where: { id: id },
         relations: ['images', 'orderItems'],
+        withDeleted: true,
       });
 
       if (!product) {
@@ -103,7 +128,7 @@ export class ProductsService {
 
   async softDeleteProduct(id: string): Promise<void> {
     try {
-      const product = await this.productRepository.findOneBy({id});
+      const product = await this.productRepository.findOneBy({ id });
 
       if (!product) {
         throw new NotFoundException(`Product with ID ${id} not found`);
@@ -119,6 +144,29 @@ export class ProductsService {
         throw error; // Re-throw NotFoundException as-is
       } else {
         throw new InternalServerErrorException('Failed to soft delete product');
+      }
+    }
+  }
+
+  async undeleteProduct(id: string): Promise<Product | undefined> {
+    try {
+      const product = await this.productRepository.findOne({
+        where: { id: id },
+        withDeleted: true,
+      });
+
+      if (product) {
+        product.deletedAt = null;
+        return await this.productRepository.save(product);
+      }
+      throw new HttpException('Product Not found', HttpStatus.NOT_FOUND);
+    } catch (error) {
+      console.log("Error in undeleteProduct:", error);
+
+      if (error instanceof HttpException) {
+        throw error;
+      } else {
+        throw new HttpException("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR)
       }
     }
   }

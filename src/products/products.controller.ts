@@ -19,7 +19,7 @@ import { MaxImagesInterceptor } from 'src/utils/interceptors/maxImageInterceptor
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Post()
   create(@Body() createProductDto: CreateProductDto) {
@@ -29,6 +29,11 @@ export class ProductsController {
   @Get()
   findAll() {
     return this.productsService.findAll();
+  }
+
+  @Get('deleted')
+  findAllDeleted() {
+    return this.productsService.findAllDeleted();
   }
 
   @Get(':id')
@@ -45,6 +50,11 @@ export class ProductsController {
   remove(@Param('id') id: string) {
     // return this.productsService.remove(id);
     return this.productsService.softDeleteProduct(id);
+  }
+
+  @Post(':id/undelete')
+  async undeleteProduct(@Param('id') id: string): Promise<void> {
+    await this.productsService.undeleteProduct(id);
   }
 
   @Post(':productId/images')
