@@ -10,7 +10,7 @@ import { ProductImageModule } from './product-image/product-image.module';
 import { CustomerModule } from './customer/customer.module';
 import { OrderItemModule } from './order-item/order-item.module';
 import { OrderModule } from './order/order.module';
-import { DeliveryStatusModule } from './delivery-status/delivery-status.module';
+import { OrderStatusModule } from './order-status/order-status.module';
 
 @Module({
   imports: [
@@ -35,7 +35,7 @@ import { DeliveryStatusModule } from './delivery-status/delivery-status.module';
     CustomerModule,
     OrderItemModule,
     OrderModule,
-    DeliveryStatusModule,
+    OrderStatusModule,
   ],
   controllers: [AppController],
   providers: [AppService],

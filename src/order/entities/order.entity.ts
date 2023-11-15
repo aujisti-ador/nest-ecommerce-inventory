@@ -1,5 +1,6 @@
 import { Customer } from 'src/customer/entities/customer.entity';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
+import { OrderStatus } from 'src/order-status/entities/order-status.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -8,6 +9,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   VersionColumn,
@@ -44,8 +46,12 @@ export class Order {
   @Column({ type: 'decimal', default: 0, precision: 10, scale: 2 })
   total_unit: number;
 
-  @Column({ type: 'boolean', default: false})
+  @Column({ type: 'boolean', default: false })
   is_order_placed: boolean;
+
+  @OneToOne(() => OrderStatus, (orderStatus) => orderStatus.order, { cascade: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: 'order_status_id' })
+  order_status: OrderStatus;
 
   @CreateDateColumn()
   created_at: Date;

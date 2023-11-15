@@ -39,6 +39,11 @@ export class OrderController {
     return this.orderService.update(id, updateOrderDto);
   }
 
+  @Patch(':id/place-order')
+  placeOrder(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    return this.orderService.placeOrder(id, updateOrderDto);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.orderService.remove(id);

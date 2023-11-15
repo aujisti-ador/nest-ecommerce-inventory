@@ -1,5 +1,5 @@
 import { IsArray, IsBoolean, IsDecimal, IsNumber, IsOptional, IsUUID } from 'class-validator';
-import { OrderItem } from 'src/order-item/entities/order-item.entity';
+import { OrderStatus } from 'src/order-status/entities/order-status.entity';
 
 export class CreateOrderDto {
   @IsUUID()
@@ -19,4 +19,7 @@ export class CreateOrderDto {
   @IsBoolean()
   @IsOptional()
   is_order_placed: boolean;
+
+  @IsOptional()
+  order_status: OrderStatus;
 }
